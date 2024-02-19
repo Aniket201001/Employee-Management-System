@@ -1,0 +1,111 @@
+package com.example.demo.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.model.Employee;
+import com.example.demo.model.MultiEntityRequest;
+import com.example.demo.model.MultiEntityResponse;
+import com.example.demo.model.PersonalInfo;
+import com.example.demo.model.Salary;
+import com.example.demo.service.EmployeeService;
+import com.example.demo.service.PersonalInfoService;
+import com.example.demo.service.SalaryService;
+
+@RestController
+//@RequestMapping("/api/multi-entities")
+public class Controller {
+
+    @Autowired
+    private EmployeeService employeeService;
+
+    @Autowired
+    private SalaryService salaryService;
+
+    @Autowired
+    private PersonalInfoService personalInfoService;
+
+    // Endpoint to create all entities
+    @PostMapping("/employee")
+    public ResponseEntity<String> createAllEntities(@RequestBody MultiEntityRequest request) {
+        Employee employee = request.getEmployee();
+        Salary salary = request.getSalary();
+        PersonalInfo personalInfo = request.getPersonalInfo();
+
+        // Save Employee
+        employee = employeeService.addEmployee(employee);
+
+        // Set Employee ID for Salary and PersonalInfo
+        salary.setEmployee(employee);
+        personalInfo.setEmployee(employee);
+
+        // Save Salary and PersonalInfo
+        salaryService.addSalary(salary);
+        personalInfoService.addPersonalInfo(personalInfo);
+
+        return ResponseEntity.ok("All entities created successfully.");
+    }
+
+    // Endpoint to get all entities
+    @GetMapping("/employee")
+    public MultiEntityResponse getAllEntities() {
+        List<Employee> employees = employeeService.getAllEmployees();
+        List<Salary> salaries = salaryService.getAllSalaries();
+        List<PersonalInfo> personalInfos = personalInfoService.getAllPersonalInfo();
+
+        return new MultiEntityResponse(employees, salaries, personalInfos);
+    }
+
+    @PutMapping("/employee/{empId}")
+    public ResponseEntity<String> updateAllEntities(@PathVariable Long empId, @RequestBody MultiEntityRequest request) {
+        Employee employee = request.getEmployee();
+        Salary salary = request.getSalary();
+        PersonalInfo personalInfo = request.getPersonalInfo();
+
+        // Update Employee
+        Employee updatedEmployee = employeeService.updateEmployee(empId, employee);
+
+        // Update Salary
+        if (salary != null) {
+            salaryService.updateSalaryByEmployeeId(empId, salary);
+        }
+
+        // Update Personal Info
+        if (personalInfo != null) {
+            personalInfoService.updatePersonalInfoByEmployeeId(empId, personalInfo);
+        }
+
+        return ResponseEntity.ok("Employee, salary, and personal info updated successfully.");
+    }
+
+
+    // Endpoint to delete all entities
+    @DeleteMapping("/employee/{empId}")
+    public ResponseEntity<String> deleteAllEntities(@PathVariable Long empId) {
+        // Delete related salary
+        salaryService.deleteSalary(empId);
+
+        // Delete related personal info
+        personalInfoService.deletePersonalInfo(empId);
+
+        // Delete employee
+        employeeService.deleteEmployee(empId);
+
+        return ResponseEntity.ok("All entities deleted successfully for employee with id: " + empId);
+    }
+    
+    @GetMapping("/salaries/{empId}")
+    public Salary getSalaryById(@PathVariable long empid) {
+    	return salaryService.getSalaryByEmployeeId(empid);
+    }
+}

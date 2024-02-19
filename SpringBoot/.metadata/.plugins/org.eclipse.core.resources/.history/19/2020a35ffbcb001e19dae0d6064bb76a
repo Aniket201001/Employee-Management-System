@@ -1,0 +1,56 @@
+package com.example.demo.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.demo.model.Employee;
+import com.example.demo.repository.EmployeeRepository;
+
+@Service
+public class EmployeeService {
+    
+    @Autowired
+    private EmployeeRepository employeeRepository;
+    
+
+    public AddEmployeeResult addEmployee(Employee employee) {
+        // Check if an employee with the same name or email already exists
+        if (employeeRepository.existsByName(employee.getName())){
+            return new AddEmployeeResult(null,false, "Employee with the same name already exists");
+        }else if(employeeRepository.existsByEmail(employee.getEmail())) {
+        	return new AddEmployeeResult(null,false, "Employee with the email already exists");
+        }else {
+
+        employeeRepository.save(employee);
+        return new AddEmployeeResult(null,true, "Employee added successfully");
+    }
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
+    }
+
+    public Employee getEmployeeById(Long id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+    }
+
+    public Employee updateEmployee(Long id, Employee employeeDetails) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        
+        employee.setName(employeeDetails.getName());
+        employee.setEmail(employeeDetails.getEmail());
+        
+        return employeeRepository.save(employee);
+    }
+
+    public void deleteEmployee(Long id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        
+        employeeRepository.delete(employee);
+    }
+}

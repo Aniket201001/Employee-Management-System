@@ -1,0 +1,16 @@
+package com.example.demo.repository;
+
+//EmployeeRepository.java
+@Repository
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+}
+
+//SalaryRepository.java
+@Repository
+public interface SalaryRepository extends JpaRepository<Salary, Long> {
+}
+
+//PersonalInfoRepository.java
+@Repository
+public interface PersonalInfoRepository extends JpaRepository<PersonalInfo, Long> {
+}

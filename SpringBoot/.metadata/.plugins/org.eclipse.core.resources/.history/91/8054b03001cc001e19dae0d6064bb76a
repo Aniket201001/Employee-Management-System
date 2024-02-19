@@ -1,0 +1,134 @@
+package com.example.demo.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.model.Employee;
+import com.example.demo.model.MultiEntityRequest;
+import com.example.demo.model.MultiEntityResponse;
+import com.example.demo.model.PersonalInfo;
+import com.example.demo.model.Salary;
+import com.example.demo.service.AddEmployeeResult;
+import com.example.demo.service.EmployeeService;
+import com.example.demo.service.PersonalInfoService;
+import com.example.demo.service.SalaryService;
+import com.example.demo.service.UpdateEmployeeResult;
+
+@RestController
+public class Controller {
+
+    @Autowired
+    private EmployeeService employeeService;
+
+    @Autowired
+    private SalaryService salaryService;
+
+    @Autowired
+    private PersonalInfoService personalInfoService;
+
+    @PostMapping("/employee")
+    public ResponseEntity<String> createAllEntities(@RequestBody MultiEntityRequest request) {
+        Employee employee = request.getEmployee();
+        Salary salary = request.getSalary();
+        PersonalInfo personalInfo = request.getPersonalInfo();
+
+        AddEmployeeResult result = employeeService.addEmployee(employee);
+        
+        if (result.isSuccess()) {
+            employee = result.getEmployee();
+            salary.setEmployee(employee);
+            personalInfo.setEmployee(employee);
+
+            salaryService.addSalary(salary);
+            personalInfoService.addPersonalInfo(personalInfo);
+
+            return ResponseEntity.ok("Employee added successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getMessage());
+            
+        }
+    }
+    
+    @GetMapping("/employee/{empId}")
+    public ResponseEntity<MultiEntityResponse> getEmployeeDetailsById(@PathVariable long empId) {
+        // Retrieve employee
+        Employee employee = employeeService.getEmployeeById(empId);
+        if (employee == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Salary salary = salaryService.getSalaryByEmployeeId(empId);
+        PersonalInfo personalInfo = personalInfoService.getPersonalInfoById(empId);
+        List<Employee> employees = new ArrayList<>();
+        employees.add(employee);
+
+        List<Salary> salaries = new ArrayList<>();
+        if (salary != null) {
+            salaries.add(salary);
+        }
+
+        List<PersonalInfo> personalInfos = new ArrayList<>();
+        if (personalInfo != null) {
+            personalInfos.add(personalInfo);
+        }
+
+        MultiEntityResponse response = new MultiEntityResponse(employees, salaries, personalInfos);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/employee")
+    public MultiEntityResponse getAllEntities() {
+        List<Employee> employees = employeeService.getAllEmployees();
+        List<Salary> salaries = salaryService.getAllSalaries();
+        List<PersonalInfo> personalInfos = personalInfoService.getAllPersonalInfo();
+
+        return new MultiEntityResponse(employees, salaries, personalInfos);
+    }
+
+    @PutMapping("/employee/{empId}")
+    public ResponseEntity<String> updateAllEntities(@PathVariable Long empId, @RequestBody MultiEntityRequest request) {
+        Employee employee = request.getEmployee();
+        Salary salary = request.getSalary();
+        PersonalInfo personalInfo = request.getPersonalInfo();
+
+        UpdateEmployeeResult updatedEmployee = employeeService.updateEmployee(empId, employee);
+
+        if (salary != null) {
+            salaryService.updateSalaryByEmployeeId(empId, salary);
+        }
+        if (personalInfo != null) {
+            personalInfoService.updatePersonalInfoByEmployeeId(empId, personalInfo);
+        }
+        return ResponseEntity.ok("Employee updated successfully.");
+    }
+
+
+    @DeleteMapping("/employee/{empId}")
+    public ResponseEntity<String> deleteAllEntities(@PathVariable Long empId) {
+       
+        salaryService.deleteSalary(empId);
+        personalInfoService.deletePersonalInfo(empId);
+        employeeService.deleteEmployee(empId);
+
+        return ResponseEntity.ok("All entities deleted successfully for employee with id: " + empId);
+    }
+    
+	/*
+	 * @GetMapping("/employees") public List<Employee> getAllEmployees(){ return
+	 * employeeService.getAllEmployees(); }
+	 */
+    
+    
+}

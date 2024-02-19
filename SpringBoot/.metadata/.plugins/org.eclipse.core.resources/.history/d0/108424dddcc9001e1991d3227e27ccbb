@@ -1,0 +1,78 @@
+package com.example.demo.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.demo.model.Employee;
+import com.example.demo.model.PersonalInfo;
+import com.example.demo.model.Salary;
+import com.example.demo.repository.EmployeeRepository;
+import com.example.demo.repository.PersonalInfoRepository;
+import com.example.demo.repository.SalaryRepository;
+
+@Service
+public class EmployeeService {
+    
+    @Autowired
+    private EmployeeRepository employeeRepository;
+    @Autowired
+    private SalaryRepository salaryRepository;
+
+    @Autowired
+    private PersonalInfoRepository personalInfoRepository;
+
+    public Map<String, Object> getEntitiesByEmployeeId(Long employeeId) {
+        Map<String, Object> entities = new HashMap<>();
+
+        // Find employee by ID
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + employeeId));
+        entities.put("employee", employee);
+
+        // Find salary by employee ID
+        Salary salary = salaryRepository.findByEmployeeId(employeeId)
+                .orElseThrow(() -> new RuntimeException("Salary not found for employee with id: " + employeeId));
+        entities.put("salary", salary);
+
+        // Find personal info by employee ID
+        PersonalInfo personalInfo = personalInfoRepository.findByEmployeeId(employeeId)
+                .orElseThrow(() -> new RuntimeException("Personal info not found for employee with id: " + employeeId));
+        entities.put("personalInfo", personalInfo);
+
+        return entities;
+    }
+
+    public Employee addEmployee(Employee employee) {
+        return employeeRepository.save(employee);
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
+    }
+
+    public Employee getEmployeeById(Long id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+    }
+
+    public Employee updateEmployee(Long id, Employee employeeDetails) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        
+        employee.setName(employeeDetails.getName());
+        employee.setEmail(employeeDetails.getEmail());
+        
+        return employeeRepository.save(employee);
+    }
+
+    public void deleteEmployee(Long id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        
+        employeeRepository.delete(employee);
+    }
+}

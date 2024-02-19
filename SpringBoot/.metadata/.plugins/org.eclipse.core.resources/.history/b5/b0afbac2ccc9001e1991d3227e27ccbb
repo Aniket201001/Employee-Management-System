@@ -1,0 +1,16 @@
+package com.example.demo.model;
+
+
+public class MultiEntityResponse {
+    private List<Employee> employees;
+    private List<Salary> salaries;
+    private List<PersonalInfo> personalInfos;
+
+    public MultiEntityResponse(List<Employee> employees, List<Salary> salaries, List<PersonalInfo> personalInfos) {
+        this.employees = employees;
+        this.salaries = salaries;
+        this.personalInfos = personalInfos;
+    }
+
+    // Getters and Setters for all fields
+}

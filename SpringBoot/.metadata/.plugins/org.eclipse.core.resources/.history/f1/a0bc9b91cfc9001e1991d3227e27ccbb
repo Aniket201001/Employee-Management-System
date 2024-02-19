@@ -1,0 +1,47 @@
+package com.example.demo.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.demo.model.PersonalInfo;
+import com.example.demo.repository.PersonalInfoRepository;
+
+@Service
+public class PersonalInfoService {
+    
+    @Autowired
+    private PersonalInfoRepository personalInfoRepository;
+
+    public PersonalInfo addPersonalInfo(PersonalInfo personalInfo) {
+        return personalInfoRepository.save(personalInfo);
+    }
+
+    public List<PersonalInfo> getAllPersonalInfo() {
+        return personalInfoRepository.findAll();
+    }
+
+    public PersonalInfo getPersonalInfoById(Long id) {
+        return personalInfoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Personal Info not found with id: " + id));
+    }
+
+    public PersonalInfo updatePersonalInfo(Long id, PersonalInfo personalInfoDetails) {
+        PersonalInfo personalInfo = personalInfoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Personal Info not found with id: " + id));
+        
+        personalInfo.setAddress(personalInfoDetails.getAddress());
+        personalInfo.setPhoneNo(personalInfoDetails.getPhoneNo());
+        
+        return personalInfoRepository.save(personalInfo);
+    }
+
+    public void deletePersonalInfo(Long id) {
+        PersonalInfo personalInfo = personalInfoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Personal Info not found with id: " + id));
+        
+        personalInfoRepository.delete(personalInfo);
+    }
+}
+
