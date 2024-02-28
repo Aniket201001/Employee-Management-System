@@ -42,6 +42,12 @@ public class SalaryService {
         return salaryRepository.save(salary);
     }
 
+    public Salary updateSalary(Salary salary) {
+        // You can directly call save() method of your repository
+        // as it will update the record if it exists or insert a new one if it doesn't
+        return salaryRepository.save(salary);
+    }
+
 
     public void deleteSalary(Long id) {
         Salary salary = salaryRepository.findById(id)

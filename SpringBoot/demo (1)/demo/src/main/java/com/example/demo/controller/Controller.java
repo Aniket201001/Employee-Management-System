@@ -134,23 +134,36 @@ public class Controller {
         Employee existingEmployee = employeeService.getEmployeeById(id);
         
         if (existingEmployee == null) {
-            // If the employee with the given ID doesn't exist, return a not found response
             return ResponseEntity.notFound().build();
         }
-        
-        // Update the employee details with the provided data
+
+        // Update employee details
         existingEmployee.setName(updatedEmployeeDetails.getName());
         existingEmployee.setEmail(updatedEmployeeDetails.getEmail());
-        
+
         // Update the employee in the database
-        Employee updatedEmployee = employeeService.updateEmployee(id, existingEmployee);
+        employeeService.updateEmployee(id, existingEmployee);
         
-        if (updatedEmployee == null) {
-            // If the update operation fails, return an internal server error response
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        Salary existingSalary=salaryService.getSalaryByEmployeeId(id);
+        
+        if(existingSalary==null) {
+        	return ResponseEntity.notFound().build();
         }
+        existingSalary.setSalary(updatedEmployeeDetails.getSalary());
+        existingSalary.setBonus(updatedEmployeeDetails.getBonus());
+        salaryService.updateSalary(existingSalary);
         
-        // Return the updated employee details DTO
+        PersonalInfo existingInfo = personalInfoService.getPersonalInfoById(id);
+        if(existingInfo==null) {
+        	return ResponseEntity.notFound().build();
+        }
+        existingInfo.setAddress(updatedEmployeeDetails.getAddress());
+        existingInfo.setPhoneNo(updatedEmployeeDetails.getPhone());
+        personalInfoService.updatePersonalInfo(existingInfo);
+        
+
+        
+        // Return the updated employee details
         return ResponseEntity.ok(updatedEmployeeDetails);
     }
 

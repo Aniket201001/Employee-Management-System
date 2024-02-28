@@ -40,6 +40,13 @@ public class PersonalInfoService {
         
         return personalInfoRepository.save(personalInfo);
     }
+    
+    public PersonalInfo updatePersonalInfo(PersonalInfo info) {
+        // You can directly call save() method of your repository
+        // as it will update the record if it exists or insert a new one if it doesn't
+        return personalInfoRepository.save(info);
+    }
+
 
     public void deletePersonalInfo(Long id) {
         PersonalInfo personalInfo = personalInfoRepository.findById(id)

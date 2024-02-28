@@ -25,7 +25,7 @@ export class AddempService {
 
   }
   
-  updateEmployee(id: number, employee: Addemp): Observable<any>{
+  updateEmployee(id: number, employee: Addemp): Observable<object>{
     return this.httpClient.put(`${this.baseURL}/${id}`, employee);
   }
 
