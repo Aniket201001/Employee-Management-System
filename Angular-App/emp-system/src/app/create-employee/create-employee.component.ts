@@ -31,6 +31,23 @@ saveEmployee() {
 goToEmployeeList(){
   this.router.navigate(['/employees']);
 }
+  
+  validator() {
+  console.log("in validator");
+  if (
+    !this.addemployees.name ||
+    !this.addemployees.email ||
+    !this.addemployees.salary ||
+    !this.addemployees.bonus ||
+    !this.addemployees.address ||
+    !this.addemployees.phone // Removed unnecessary condition here
+  ) {
+    alert('Please fill all fields');
+  } else {
+    console.log("else block");
+    this.saveEmployee();
+  }
+}
 
 onSubmit(){
   console.log(this.addemployees);
